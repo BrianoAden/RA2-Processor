@@ -7,14 +7,14 @@
 'define BRANCH 1100011
 
 
-module decoder(input [31:0] instruction_in, output [6:0] opcode_out, output [4:0] dest_reg_out, output [2:0] function_3_bits_out, output [6:0] function_7_bits_out,
-                output [4:0] source_reg_1_out, output [4:0] source_reg_2_out, output [31:0] immediate_out, output write_enable);
+module decoder(input logic [31:0] instruction_in, output logic [6:0] opcode_out, output logic [4:0] dest_reg_out, output logic [2:0] function_3_bits_out, output logic [6:0] function_7_bits_out,
+                output logic [4:0] source_reg_1_out, output logic [4:0] source_reg_2_out, output logic [31:0] immediate_out, output logic write_enable);
 
 // Need to figure out how to make immediate a bit more dynamic and fit the different instruction types better
 // Maybe use the opcode to define how the immediate will be represented, seems like theres about 8 different ways of creating the immediate
 // Also need to add control signals the other modules based on opcode/instruction type
 
-// Should add a control vector of bits
+// Should add a control vector of bits, maybe use a struct?
 
 // Immediate needs to be sign extended
 
