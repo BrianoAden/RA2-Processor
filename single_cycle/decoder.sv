@@ -1,10 +1,10 @@
-'define LB_LH_LW_LBU_LHU 0000011
-'define SB_SH_SW 0100011
-'define LUI_AUIPC 0010111
-'define JAL 1101111
-'define JALR 1100111
-'define ADDI_SLTI_SLTIU_XORI_ORI_AND_I 0010011
-'define BRANCH 1100011
+`define LB_LH_LW_LBU_LHU 0000011
+`define SB_SH_SW 0100011
+`define LUI_AUIPC 0010111
+`define JAL 1101111
+`define JALR 1100111
+`define ADDI_SLTI_SLTIU_XORI_ORI_AND_I 0010011
+`define BRANCH 1100011
 
 
 module decoder(input logic [31:0] instruction_in, output logic [6:0] opcode_out, output logic [4:0] dest_reg_out, output logic [2:0] function_3_bits_out, output logic [6:0] function_7_bits_out,
@@ -20,6 +20,10 @@ module decoder(input logic [31:0] instruction_in, output logic [6:0] opcode_out,
 
 logic branch_sig, load_sig, store_sig, jump_sig;
 
+typedef struct packed {
+    
+} control_signals;
+
 always_comb begin : decoderImplementation
     opcode_out [6:0] = instruction_in [6:0];
     dest_reg_out [4:0] = instruction_in [11:7];
@@ -28,20 +32,22 @@ always_comb begin : decoderImplementation
     source_reg_1_out [4:0] = instruction_in [19:15];
     source_reg_2_out [4:0] = instruction_in [24:20];
 
-    if (opcode_out[6:0] == LB_LH_LW_LBU_LHU) || (opcode_out[6:0] == ADDI_SLTI_SLTIU_XORI_ORI_AND_I) || (opcode_out[6:0] == JALR) begin
-        immediate_out[31:0] = {20{instruction_in[31]}, instruction_in[31:20]};
+
+    // Should switch whats below to a case staement, maybe a unique case?
+    if ((opcode_out[6:0] == LB_LH_LW_LBU_LHU) || (opcode_out[6:0] == ADDI_SLTI_SLTIU_XORI_ORI_AND_I) || (opcode_out[6:0] == JALR)) begin
+        immediate_out[31:0] = {{20{instruction_in[31]}}, instruction_in[31:20]};
     end
     else if (opcode_out[6:0] == SB_SH_SW) begin
-        immediate_out[31:0] = {20{instruction_in[31]}, instruction_in[31:25], instruction_in[11:7]};
+        immediate_out[31:0] = {{20{instruction_in[31]}}, instruction_in[31:25], instruction_in[11:7]};
     end
     else if (opcode_out[6:0] == LUI_AUIPC) begin
         immediate_out[31:0] = {instruction_in[31:12], 12'b0};
     end
     else if (opcode_out[6:0] == BRANCH) begin
-        immediate_out[31:0] = {19{instruction_in[31]}, instruction_in[31], instruction_in[7], instruction_in[30:25], instruction_in[11:8], 1'b0};
+        immediate_out[31:0] = {{19{instruction_in[31]}}, instruction_in[31], instruction_in[7], instruction_in[30:25], instruction_in[11:8], 1'b0};
     end 
     else if (opcode_out[6:0] == JAL) begin
-        immediate_out[31:0] = {11{instruction_in[31]}, instruction_in[31], instruction_in[19:12], instruction_in[20], instruction_in[30:21]. 1'b0};
+        immediate_out[31:0] = {{11{instruction_in[31]}}, instruction_in[31], instruction_in[19:12], instruction_in[20], instruction_in[30:21], 1'b0};
     end
     else begin
         immediate_out[31:0] = 32'd0; // Need to figure out a better method of handling no immediate

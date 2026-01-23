@@ -4,53 +4,32 @@ module branch(input logic branch_signal, input logic [2:0] func_3bits, input log
 // Do I need to compute target address in here? 
 
 always_comb begin: branchUnit
+
+    branch_taken = 1'b0;
+    target_address = current_pc + immediate;
+
     if (branch_signal) begin
         case (func_3bits)
             3'b000: begin // BEQ
-                if (source_reg_1_in == source_reg_2_in) begin
-                    branch_taken = 1'b1;
-                end else begin
-                    branch_taken = 1'b0;
-                end
+                branch_taken = (source_reg_1_in == source_reg_2_in);
             end
             3'b001: begin // BNE
-                if (source_reg_1_in != source_reg_2_in) begin
-                    branch_taken = 1'b1;
-                end else begin
-                    branch_taken = 1'b0;
-                end
+                branch_taken = (source_reg_1_in != source_reg_2_in);
             end
             3'b100: begin // BLT
-                if ($signed(source_reg_1_in) < $signed(source_reg_2_in)) begin
-                    branch_taken = 1'b1;
-                end else begin
-                    branch_taken = 1'b0;
-                end
+                branch_taken = ($signed(source_reg_1_in) < $signed(source_reg_2_in));
             end
             3'b101: begin // BGE
-                if ($signed(source_reg_1_in) >= $signed(source_reg_2_in)) begin
-                    branch_taken = 1'b1;
-                end else begin
-                    branch_taken = 1'b0;
-                end
+                branch_taken = ($signed(source_reg_1_in) >= $signed(source_reg_2_in));
             end
             3'b110: begin // BLTU
-                if (source_reg_1_in < source_reg_2_in) begin
-                    branch_taken = 1'b1;
-                end else begin
-                    branch_taken = 1'b0;
-                end
+                branch_taken = (source_reg_1_in < source_reg_2_in);
             end
             3'b111: begin // BGEU
-                if (source_reg_1_in >= source_reg_2_in) begin
-                    branch_taken = 1'b1;
-                end else begin
-                    branch_taken = 1'b0;
-                end
+                branch_taken = (source_reg_1_in >= source_reg_2_in);
             end
+            default: branch_taken = 1'b0;
         endcase
-    end else begin
-        branch_taken = 1'b0;
     end
 end
 
