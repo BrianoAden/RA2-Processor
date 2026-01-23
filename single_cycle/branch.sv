@@ -6,7 +6,7 @@ module branch(input logic branch_signal, input logic [2:0] func_3bits, input log
 always_comb begin: branchUnit
 
     branch_taken = 1'b0;
-    target_address = current_pc + immediate;
+    target_address = current_pc + immediate; // should Immediate be signed?
 
     if (branch_signal) begin
         case (func_3bits)
