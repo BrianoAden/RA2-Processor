@@ -1,5 +1,5 @@
 module regfile(input clk, input reset, input [4:0] rs1, input [4:0] rs2, input [4:0] rd,
-                input [31:0] write_data, output [31:0] reg1_data, output [31:0] reg2_data, output [31:0] read_rd_data);
+                input [31:0] write_data, input reg_write, output [31:0] reg1_data, output [31:0] reg2_data, output [31:0] read_rd_data);
 
 logic [31:0] registers [31:0];
 logic [31:0] reg1_data, reg2_data, read_rd_data;
@@ -13,7 +13,7 @@ always_ff @(posedge clk) begin
             registers[i] <= 32'h00000000;
         end
     end else begin
-    if (write) begin
+    if (reg_write) begin
         registers[rd] <= write_data;
     end
 
