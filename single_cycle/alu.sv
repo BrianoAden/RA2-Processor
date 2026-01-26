@@ -20,7 +20,13 @@ always_comb begin : ALU
     result = 32'd0;
     if (control_sigs.load_sig || control_sigs.store_sig || control_sigs.branch_sig || control_sigs.jal_sig || control_sigs.jalr_sig) begin // all are signed
         result = operand_1 + operand_2; // computes the offset 
-    end else begin
+        // branch and JAL use PC + immediate
+        // store and load use the base address plus the offset
+        if (control_sigs.jalr_sig) begin
+            result = result & ~32'd1
+        end
+    end 
+    else begin
         case(func_3_bits)
             3'b000: begin // ADDI, and ADD & SUB
                 if (func_7_bit) begin

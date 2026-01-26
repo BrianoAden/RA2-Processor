@@ -67,7 +67,7 @@ always_comb begin : decoderImplementation
         JALR: begin
             /*
             rd = PC + 4
-            PC = (rs1 + offset) & ~1
+            PC = (rs1 + offset) & ~1   i.e. rs1_data + immediate
             */
             immediate_out[31:0] = {{20{instruction_in[31]}}, instruction_in[31:20]};
             control_sigs.jalr_sig = 1'b1;
@@ -92,7 +92,7 @@ always_comb begin : decoderImplementation
         JAL: begin
             /*
             rd = PC + 4
-            PC = PC + offset
+            PC = PC + offset     i.e. PC + immediate
             */
             immediate_out[31:0] = {{11{instruction_in[31]}}, instruction_in[31], instruction_in[19:12], instruction_in[20], instruction_in[30:21], 1'b0};
             control_sigs.jal_sig = 1'b1;
