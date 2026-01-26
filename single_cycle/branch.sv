@@ -1,12 +1,10 @@
-module branch(input logic branch_signal, input logic [2:0] func_3bits, input logic [31:0] immediate, input logic [31:0] source_reg_1_in, input logic [31:0] source_reg_2_in,
-             input logic [31:0] current_pc, output logic branch_taken, output logic [31:0] target_address);
+module branch(input logic branch_signal, input logic [2:0] func_3bits, input logic [31:0] immediate, input logic [31:0] source_reg_1_in, input logic [31:0] source_reg_2_in, output logic branch_taken);
 
 // Do I need to compute target address in here? 
 
 always_comb begin: branchUnit
 
     branch_taken = 1'b0;
-    target_address = current_pc + immediate; // should Immediate be signed?
 
     if (branch_signal) begin
         case (func_3bits)

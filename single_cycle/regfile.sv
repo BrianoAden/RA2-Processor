@@ -16,7 +16,6 @@ always_ff @(posedge clk) begin
     if (reg_write) begin
         registers[rd] <= write_data;
     end
-
     reg1_data <= registers[rs1];
     reg2_data <= registers[rs2];
     read_rd_data <= registers[rd];

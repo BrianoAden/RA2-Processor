@@ -12,7 +12,8 @@ typedef struct packed {
     logic branch_sig;
     logic load_sig;
     logic store_sig;
-    logic jump_sig;
+    logic jal_sig;
+    logic jalr_sig;
     logic ALU_1_op_sig;
     logic ALU_2_op_sig;
     logic reg_write;
@@ -33,7 +34,8 @@ always_comb begin : decoderImplementation
     control_sigs.branch_sig = 1'b0;
     control_sigs.load_sig = 1'b0;
     control_sigs.store_sig = 1'b0;
-    control_sigs.jump_sig = 1'b0;
+    control_sigs.jal_sig = 1'b0;
+    control_sigs.jalr_sig = 1'b0;
     control_sigs.ALU_1_op_sig = 1'b0;
     control_sigs.ALU_2_op_sig = 1'b0;
     control_sigs.reg_write = 1'b0;
@@ -68,7 +70,7 @@ always_comb begin : decoderImplementation
             PC = (rs1 + offset) & ~1
             */
             immediate_out[31:0] = {{20{instruction_in[31]}}, instruction_in[31:20]};
-            control_sigs.jump_sig = 1'b1;
+            control_sigs.jalr_sig = 1'b1;
             control_sigs.reg_write = 1'b1;
         end
         SB_SH_SW: begin
@@ -93,7 +95,7 @@ always_comb begin : decoderImplementation
             PC = PC + offset
             */
             immediate_out[31:0] = {{11{instruction_in[31]}}, instruction_in[31], instruction_in[19:12], instruction_in[20], instruction_in[30:21], 1'b0};
-            control_sigs.jump_sig = 1'b1;
+            control_sigs.jal_sig = 1'b1;
             control_sigs.reg_write = 1'b1;
         end
         default: begin
