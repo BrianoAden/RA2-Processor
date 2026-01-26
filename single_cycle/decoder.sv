@@ -17,18 +17,12 @@ typedef struct packed {
     logic ALU_1_op_sig;
     logic ALU_2_op_sig;
     logic reg_write;
+    logic auipc_sig;
+    logic lui_sig;
 } control_signals_struct;
 
 module decoder(input logic [31:0] instruction_in, output logic [6:0] opcode_out, output logic [4:0] dest_reg_out, output logic [2:0] function_3_bits_out, output logic [6:0] function_7_bits_out,
                 output logic [4:0] source_reg_1_out, output logic [4:0] source_reg_2_out, output logic [31:0] immediate_out, output control_signals_struct control_sigs);
-
-// Need to figure out how to make immediate a bit more dynamic and fit the different instruction types better
-// Maybe use the opcode to define how the immediate will be represented, seems like theres about 8 different ways of creating the immediate
-// Also need to add control signals the other modules based on opcode/instruction type
-
-// Should add a control vector of bits, maybe use a struct?
-
-// Immediate needs to be sign extended
 
 always_comb begin : decoderImplementation
     control_sigs.branch_sig = 1'b0;
@@ -39,6 +33,8 @@ always_comb begin : decoderImplementation
     control_sigs.ALU_1_op_sig = 1'b0;
     control_sigs.ALU_2_op_sig = 1'b0;
     control_sigs.reg_write = 1'b0;
+    control_sigs.auipc_sig = 1'b0;
+    control_sigs.lui_sig = 1'b0;
     immediate_out = 32'd0;
 
     opcode_out [6:0] = instruction_in [6:0];
@@ -80,10 +76,12 @@ always_comb begin : decoderImplementation
         AUIPC: begin // rd = PC + (imm << 12)
             immediate_out[31:0] = {instruction_in[31:12], 12'b0};
             control_sigs.reg_write = 1'b1;
+            control_sigs.auipc_sig = 1'b1;
         end
-        LUI: begin //rd = imm << 12 
+        LUI: begin //rd = imm << 12
             immediate_out[31:0] = {instruction_in[31:12], 12'b0};
             control_sigs.reg_write = 1'b1;
+            control_sigs.lui_sig = 1'b1;
         end
         BRANCH: begin
             immediate_out[31:0] = {{19{instruction_in[31]}}, instruction_in[31], instruction_in[7], instruction_in[30:25], instruction_in[11:8], 1'b0};
