@@ -6,7 +6,7 @@ logic [31:0] registers [31:0];
 integer i;
 
 always_ff @(posedge clk) begin
-    registers[0] <= 32'h00000000; // Register 0 should always be 0
+    registers[0] <= 32'h00000000; // Register 0 should always be 0 based on RV standard
     if (reset) begin
         for (i = 1; i < 32; i = i +1) begin
             registers[i] <= 32'h00000000;
