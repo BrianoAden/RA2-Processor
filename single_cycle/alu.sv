@@ -1,21 +1,13 @@
-typedef struct packed {
-    logic branch_sig;
-    logic load_sig;
-    logic store_sig;
-    logic jal_sig;
-    logic jalr_sig;
-    logic ALU_1_op_sig;
-    logic ALU_2_op_sig;
-    logic auipc_sig;
-} alu_control_signals_struct;
+import alu_state_pkg::*;
 
-module alu(input [31:0] operand_1, input [31:0] operand_2, input [4:0] shift_amount, input alu_control_signals_struct control_sigs, input [2:0] func_3_bits, input func_7_bit, output logic [31:0] result);
-
+module alu(input signed [31:0] operand_1, input signed [31:0] operand_2, input [4:0] shift_amount, input ctrl_sig_pkg::ctrl_sigs_t control_sigs, input [2:0] func_3_bits, input logic func_7_bit, output logic signed [31:0] result);
 // default RV32I only uses the 6th bit for a few instructions, could likely use that single bit to minimize bus widths instead of using func_7_bits
 
 // rs2 is used for shifts
 
 // Need to compute the effective addresses in the ALU
+
+// Need to decide whether operands and output should be signed or unsigned
 
 always_comb begin : ALU
     result = 32'd0;
@@ -28,8 +20,8 @@ always_comb begin : ALU
         end // Need to implement the PC + 4 for JAL and JALR
     end 
     else begin
-        case(func_3_bits)
-            3'b000: begin // ADDI, and ADD & SUB
+        case(alu_state_pkg::alu_state_t'(func_3_bits))
+            ADDI_ADD_SUB: begin // ADDI, and ADD & SUB
                 if (func_7_bit) begin
                     result = operand_1 - operand_2;
                 end
@@ -37,25 +29,25 @@ always_comb begin : ALU
                     result = operand_1 + operand_2;
                 end
             end
-            3'b010: begin // SLTI and SLT
+            SLTI_SLT: begin // SLTI and SLT
                 result = ($signed(operand_1) < $signed(operand_2)) ? 32'd1 : 32'd0;
             end
-            3'b011: begin // SLTIU and SLTU
+            SLTIU_SLTU: begin // SLTIU and SLTU, may need to change this to unsigned comparison
                 result = (operand_1 < operand_2) ? 32'd1 : 32'd0;
             end
-            3'b100: begin // XORI & XOR
+            XORI_XOR: begin // XORI & XOR
                 result = operand_1 ^ operand_2;
             end 
-            3'b110: begin // ORI and OR
+            ORI_OR: begin // ORI and OR
                 result = operand_1 | operand_2;
             end 
-            3'b111: begin // ANDI and AND 
+            ANDI_AND: begin // ANDI and AND 
                 result = operand_1 & operand_2;
             end 
-            3'b001: begin // SLLI and SLL: logical left shift
+            SLLI_SLL: begin // SLLI and SLL: logical left shift
                 result = operand_1 << shift_amount; // need to add zeros
             end
-            3'b101: begin // SRLI, SRAI and SRL and SRA: logical right shift and arithmetic right shift
+            SRLI_SRAI_SRL_SRA: begin // SRLI, SRAI and SRL and SRA: logical right shift and arithmetic right shift
                 if (func_7_bit) begin // SRAI and SRA
                     result = $signed(operand_1) >>> shift_amount; // need to replicate the sign bit
                 end 

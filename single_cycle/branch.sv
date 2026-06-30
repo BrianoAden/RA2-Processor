@@ -1,27 +1,29 @@
-module branch(input logic branch_signal, input logic [2:0] func_3bits, input logic [31:0] immediate, input logic [31:0] source_reg_1_in, input logic [31:0] source_reg_2_in, output logic branch_taken);
+import branch_state_pkg::*;
+
+module branch(input logic branch_signal, input logic [2:0] func_3bits, input logic [31:0] source_reg_1_in, input logic [31:0] source_reg_2_in, output logic branch_taken);
 
 always_comb begin: branchUnit
 
     branch_taken = 1'b0;
 
     if (branch_signal) begin
-        case (func_3bits)
-            3'b000: begin // BEQ
+        case (branch_state_pkg::branch_state_t'(func_3bits))
+            BEQ: begin // BEQ
                 branch_taken = (source_reg_1_in == source_reg_2_in);
             end
-            3'b001: begin // BNE
+            BNE: begin // BNE
                 branch_taken = (source_reg_1_in != source_reg_2_in);
             end
-            3'b100: begin // BLT
+            BLT: begin // BLT
                 branch_taken = ($signed(source_reg_1_in) < $signed(source_reg_2_in));
             end
-            3'b101: begin // BGE
+            BGE: begin // BGE
                 branch_taken = ($signed(source_reg_1_in) >= $signed(source_reg_2_in));
             end
-            3'b110: begin // BLTU
+            BLTU: begin // BLTU
                 branch_taken = (source_reg_1_in < source_reg_2_in);
             end
-            3'b111: begin // BGEU
+            BGEU: begin // BGEU
                 branch_taken = (source_reg_1_in >= source_reg_2_in);
             end
             default: branch_taken = 1'b0;

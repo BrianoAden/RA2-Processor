@@ -12,9 +12,9 @@ always_ff @(posedge clk) begin
             registers[i] <= 32'h00000000;
         end
     end else begin
-    if (reg_write && rd != 5'd0) begin
-        registers[rd] <= write_data;
-    end
+        if (reg_write && rd != 5'd0) begin
+            registers[rd] <= write_data;
+        end
     end
 end
 

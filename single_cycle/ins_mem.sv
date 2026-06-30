@@ -1,4 +1,4 @@
-module instruction_memory(input [31:0] pc_value, output [31:0] instruction);
+module instruction_memory(input logic [31:0] pc_value, output logic [31:0] instruction);
 
 logic [31:0] mem [0:255];
 logic [7:0] word_index;

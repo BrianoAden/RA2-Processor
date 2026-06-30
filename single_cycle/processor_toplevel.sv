@@ -1,102 +1,85 @@
 module processor_toplevel(input clk, input reset);
 
-module alu alu (
-    .operand_1   (operand_1),
-    .operand_2   (operand_2),
-    .shift_amount(shift_amount),
-    .control_sigs(control_sigs),
-    .func_3_bits (func_3_bits),
-    .func_7_bit  (func_7_bit),
-    .result      (result)
-); (
-    ports
-);
-    
-endmodule
+logic branch_taken, jump;
+logic [31:0] pc_value, pc_output;
+logic [31:0] alu_result;
 
-module branch branch (
-    .branch_signal  (branch_signal),
-    .func_3bits     (func_3bits),
-    .immediate      (immediate),
-    .source_reg_1_in(source_reg_1_in),
-    .source_reg_2_in(source_reg_2_in),
-    .branch_taken   (branch_taken)
-); (
-    ports
-);
-    
-endmodule
-
-module data_memory data_memory (
+programCounter myPC(
     .clk         (clk),
     .reset       (reset),
-    .write_enable(write_enable),
-    .read_enable (read_enable),
-    .func_3_bits (func_3_bits),
-    .address     (address),
-    .data_in     (data_in),
-    .data_out    (data_out)
-); (
-    ports
+    .branch_taken (branch_taken),
+    .jump (jump),
+    .incoming_pc    (alu_result), // From 
+    .pc_output (pc_output)
 );
-    
-endmodule
 
-module decoder decoder (
-    .instruction_in     (instruction_in),
-    .opcode_out         (opcode_out),
-    .dest_reg_out       (dest_reg_out),
-    .function_3_bits_out(function_3_bits_out),
-    .function_7_bits_out(function_7_bits_out),
-    .source_reg_1_out   (source_reg_1_out),
-    .source_reg_2_out   (source_reg_2_out),
-    .immediate_out      (immediate_out),
-    .control_sigs       (control_sigs)
-); (
-    ports
-);
-    
-endmodule
+logic [31:0] instruction; 
 
-module instruction_memory instruction_memory (
-    .pc_value   (pc_value),
+instruction_memory myInstructionMemory(
+    .pc_value   (pc_output),
     .instruction(instruction)
-); (
-    ports
 );
-    
-endmodule
 
-module decoder decoder (
-    .instruction_in     (instruction_in),
-    .opcode_out         (opcode_out),
-    .dest_reg_out       (dest_reg_out),
+logic [4:0] source_register_1, source_register_2, dest_register;
+
+logic [2:0] function_3_bits_out;
+logic [6:0] function_7_bits_out;
+
+decoder myDecoder(
+    .instruction_in     (instruction),
+    .dest_reg_out       (dest_register),
     .function_3_bits_out(function_3_bits_out),
     .function_7_bits_out(function_7_bits_out),
-    .source_reg_1_out   (source_reg_1_out),
-    .source_reg_2_out   (source_reg_2_out),
+    .source_reg_1_out   (source_register_1),
+    .source_reg_2_out   (source_register_2),
     .immediate_out      (immediate_out),
     .control_sigs       (control_sigs)
-); (
-    ports
 );
-    
-endmodule
 
-module regfile regfile (
+logic [31:0] reg1_data, reg2_data, write_data;
+
+regfile myRegfile(
     .clk       (clk),
     .reset     (reset),
-    .rs1       (rs1),
-    .rs2       (rs2),
-    .rd        (rd),
+    .rs1       (source_register_1),
+    .rs2       (source_register_2),
+    .rd        (dest_register),
     .write_data(write_data),
     .reg_write (reg_write),
     .reg1_data (reg1_data),
     .reg2_data (reg2_data)
-); (
-    ports
 );
-    
-endmodule
+
+// need to add logic to decide whether operand is from register or immediate
+
+alu myALU(
+    .operand_1   (operand_1),
+    .operand_2   (operand_2),
+    .shift_amount(shift_amount),
+    .control_sigs(control_sigs),
+    .func_3_bits (function_3_bits_out),
+    .func_7_bit  (function_7_bits_out[0]), // need to figure out which bit this needs to be
+    .result      (alu_result)
+);
+
+branch myBranch(
+    .branch_signal  (branch_signal),
+    .func_3bits     (function_3_bits_out),
+    .source_reg_1_in(reg1_data),
+    .source_reg_2_in(reg2_data),
+    .branch_taken   (branch_taken)
+);
+
+data_memory myDataMemory(
+    .clk         (clk),
+    .reset       (reset),
+    .write_enable(write_enable),
+    .read_enable (read_enable),
+    .func_3_bits (function_3_bits_out),
+    .address     (address),
+    .data_in     (data_in),
+    .data_out    (data_out)
+);
+
 
 endmodule

@@ -1,28 +1,10 @@
-`define LB_LH_LW_LBU_LHU 7'b0000011
-`define SB_SH_SW 7'b0100011
-`define AUIPC 7'b0010111
-`define LUI 7'b0110111 
-`define JAL 7'b1101111
-`define JALR 7'b1100111
-`define ALU_1_OP 7'b0010011
-`define BRANCH 7'b1100011
-`define ALU_2_OP 7'b0110011
+import opcodes_pkg::*;
 
-typedef struct packed {
-    logic branch_sig;
-    logic load_sig;
-    logic store_sig;
-    logic jal_sig;
-    logic jalr_sig;
-    logic ALU_1_op_sig;
-    logic ALU_2_op_sig;
-    logic reg_write;
-    logic auipc_sig;
-    logic lui_sig;
-} control_signals_struct;
+module decoder(input logic [31:0] instruction_in, output logic [4:0] dest_reg_out, output logic [2:0] function_3_bits_out, output logic [6:0] function_7_bits_out,
+                output logic [4:0] source_reg_1_out, output logic [4:0] source_reg_2_out, output logic [31:0] immediate_out, output ctrl_sig_pkg::ctrl_sigs_t control_sigs);
+    
 
-module decoder(input logic [31:0] instruction_in, output logic [6:0] opcode_out, output logic [4:0] dest_reg_out, output logic [2:0] function_3_bits_out, output logic [6:0] function_7_bits_out,
-                output logic [4:0] source_reg_1_out, output logic [4:0] source_reg_2_out, output logic [31:0] immediate_out, output control_signals_struct control_sigs);
+logic [6:0] opcode;
 
 always_comb begin : decoderImplementation
     control_sigs.branch_sig = 1'b0;
@@ -37,7 +19,7 @@ always_comb begin : decoderImplementation
     control_sigs.lui_sig = 1'b0;
     immediate_out = 32'd0;
 
-    opcode_out [6:0] = instruction_in [6:0];
+    opcode = instruction_in [6:0];
     dest_reg_out [4:0] = instruction_in [11:7];
     function_3_bits_out [2:0] = instruction_in [14:12];
     function_7_bits_out [6:0] = instruction_in [31:25];
@@ -45,7 +27,7 @@ always_comb begin : decoderImplementation
     source_reg_2_out [4:0] = instruction_in [24:20];
 
 // Need to figure out what to do for fence and pause and ecall and ebreak
-    case(opcode_out[6:0])
+    case(opcodes_pkg::opcodes_t'(opcode))
         LB_LH_LW_LBU_LHU: begin
             immediate_out[31:0] = {{20{instruction_in[31]}}, instruction_in[31:20]};
             control_sigs.load_sig = 1'b1;
