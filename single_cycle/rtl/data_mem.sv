@@ -1,7 +1,8 @@
+module data_memory
 import d_mem_state_pkg::*;
-
-module data_memory(input logic clk, input logic reset, input logic write_enable, input logic read_enable, 
-                    input logic [2:0] func_3_bits, input logic [31:0] address, input logic [31:0] data_in, output logic [31:0] data_out);
+#(parameter int data_width = 32)
+(input logic clk, input logic reset, input logic write_enable, input logic read_enable, 
+input logic [2:0] func_3_bits, input logic [data_width-1:0] address, input logic [data_width-1:0] data_in, output logic [data_width-1:0] data_out);
 
 // RISC V makes use of 32 bit addressing
 
@@ -12,14 +13,14 @@ module data_memory(input logic clk, input logic reset, input logic write_enable,
 // write_enable = store_sig
 // read_enable = load_sig
 
-logic [31:0] mem [0:255];
-logic [31:0] word;
+logic [data_width-1:0] mem [0:255];
+logic [data_width-1:0] word;
 logic [7:0] byte_logic;
 logic [15:0] half_word;
 logic [7:0] address_word;
 logic [1:0] address_byte;
 
-logic [31:0] word_next;
+logic [data_width-1:0] word_next;
 integer i;
 
 always_comb begin
@@ -52,26 +53,26 @@ end
 always_ff @(posedge clk) begin
     if (reset) begin
         for (i = 0; i < 256; i = i + 1) begin
-            mem[i] <= 32'h00000000;
+            mem[i] <= {data_width{1'b0}};
         end
     end else if (read_enable) begin // If we are loading data
         case(d_mem_state_pkg::d_mem_rd_state_t'(func_3_bits))
             LB: begin // LB
-                data_out <= {{24{byte_logic[7]}}, byte_logic};
+                data_out <= {{(data_width - 8){byte_logic[7]}}, byte_logic};
             end
             LH: begin // LH
-                data_out <= {{16{half_word[15]}}, half_word};
+                data_out <= {{(data_width - 16){half_word[15]}}, half_word};
             end
             LW: begin // LW
                 data_out <= mem[address_word];
             end
             LBU: begin // LBU
-                data_out <= {24'd0, byte_logic};
+                data_out <= {{(data_width - 8){1'b0}}, byte_logic};
             end
             LHU: begin // LHU
-                data_out <= {16'd0, half_word};
+                data_out <= {{(data_width - 16){1'b0}}, half_word};
             end
-            default: data_out <= 32'd0; // need to figure out what default should be
+            default: data_out <= {data_width{1'b0}}; // need to figure out what default should be
         endcase
     end else if (write_enable) begin // If we are storing data
         mem[address_word] <= word_next;

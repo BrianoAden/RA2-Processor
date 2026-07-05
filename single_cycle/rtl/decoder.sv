@@ -1,7 +1,8 @@
+module decoder
 import opcodes_pkg::*;
-
-module decoder(input logic [31:0] instruction_in, output logic [4:0] dest_reg_out, output logic [2:0] function_3_bits_out, output logic [6:0] function_7_bits_out,
-                output logic [4:0] source_reg_1_out, output logic [4:0] source_reg_2_out, output logic [31:0] immediate_out, output ctrl_sig_pkg::ctrl_sigs_t control_sigs);
+(input logic [31:0] instruction_in, output logic [4:0] dest_reg_out, output logic [2:0] function_3_bits_out, 
+output logic [6:0] function_7_bits_out, output logic [4:0] source_reg_1_out, output logic [4:0] source_reg_2_out, 
+output logic [31:0] immediate_out, output ctrl_sig_pkg::ctrl_sigs_t control_sigs);
     
 
 logic [6:0] opcode;

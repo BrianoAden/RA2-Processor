@@ -1,6 +1,8 @@
+module branch
 import branch_state_pkg::*;
-
-module branch(input logic branch_signal, input logic [2:0] func_3bits, input logic [31:0] source_reg_1_in, input logic [31:0] source_reg_2_in, output logic branch_taken);
+#(parameter int data_width = 32)
+(input logic branch_signal, input logic [2:0] func_3bits, input logic [data_width-1:0] source_reg_1_in, 
+input logic [data_width-1:0] source_reg_2_in, output logic branch_taken);
 
 always_comb begin: branchUnit
 
